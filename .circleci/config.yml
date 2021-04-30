@@ -1,0 +1,18 @@
+version: 2.1
+
+jobs:
+  push-to-ecr:
+    machine:
+      image: ubuntu-2004:202010-01
+    steps:
+      - checkout
+      - run: aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $URL
+      - run: docker build -t $URL/devops:latest -t $URL/devops:$CIRCLE_BUILD_NUM .
+      - run: docker push $URL/devops:$CIRCLE_BUILD_NUM
+      - run: docker push $URL/devops:latest
+
+workflows:
+  version: 2.1
+  aws-cli:
+    jobs:
+      - push-to-ecr
